@@ -157,59 +157,83 @@ Directory enumeration on the web service found a hidden \texttt{/secret/} path, 
 
 \newpage
 \section{Q2 Threat Modelling}
-\subsection{Assumptions}
+\subsection{Assumptions and Coverage}
 The model represents a medical wearable diagnosis system. A wearable collects patient activity data and sends motion data to a mobile application over Bluetooth. The mobile application sends API requests to cloud services over the public internet. Cloud services authenticate clinicians, run ML inference, create diagnosis reports, store reports, and record audit events.
+
+This section uses a Level 2/3 DFD, explicitly marks trust boundaries, identifies four STRIDE threats including an Information Disclosure threat, proposes mitigations, and adds those mitigations back into the second DFD.
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\linewidth}{>{\raggedright\arraybackslash}p{0.23\linewidth} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{DFD Element Type} & \textbf{Elements Included}\\
+\midrule
+External entities & Patient; Clinician\\
+Processes & Wearable Device; Mobile Application; Cloud API; Authentication Service; ML Inference Service; Report Service\\
+Data stores & Diagnosis Report Database; Audit Log Store\\
+Trust boundaries & Wearable Device Boundary; Bluetooth Wireless Boundary; Mobile Device Boundary; Public Internet Boundary; Cloud Environment Boundary; Database Boundary\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 \begin{landscape}
 \begin{figure}[p]
 \centering
-\resizebox{0.96\linewidth}{!}{%
+\resizebox{0.98\linewidth}{!}{%
 \begin{tikzpicture}[
   >=Latex,
-  node distance=1.2cm,
   every node/.style={font=\sffamily},
-  entity/.style={draw=blue!35!black, fill=entityblue, rounded corners=3pt, minimum width=3.0cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
-  process/.style={draw=green!30!black, fill=processgreen, rounded corners=3pt, minimum width=3.4cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
-  store/.style={draw=yellow!35!black, fill=storeyellow, rounded corners=3pt, minimum width=3.4cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
-  boundary/.style={draw=boundarygray, rounded corners=6pt, thick},
-  flow/.style={->, thick, draw=slategray},
-  lab/.style={fill=white, inner sep=2pt, font=\sffamily\scriptsize}
+  entity/.style={draw=blue!35!black, fill=entityblue, rounded corners=4pt, minimum width=3.2cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
+  process/.style={draw=green!30!black, fill=processgreen, rounded corners=4pt, minimum width=3.4cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
+  store/.style={draw=yellow!35!black, fill=storeyellow, rounded corners=4pt, minimum width=3.6cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
+  boundary/.style={draw=boundarygray, rounded corners=8pt, line width=0.75pt},
+  flow/.style={->, line width=0.75pt, draw=slategray},
+  lab/.style={fill=white, inner sep=2pt, font=\sffamily\scriptsize, text=slategray}
 ]
 \definecolor{slategray}{HTML}{334155}
-
-\node[entity] (patient) at (1.7,10.4) {Patient};
-\node[process] (wear) at (1.7,6.7) {Wearable\\Device};
-\node[entity] (clinician) at (6.8,10.4) {Clinician};
-\node[process] (mobile) at (6.8,6.7) {Mobile\\Application};
-\node[process] (api) at (12.5,6.7) {Cloud API};
-\node[process] (auth) at (19.0,10.4) {Authentication\\Service};
-\node[process] (ml) at (19.0,6.9) {ML Inference\\Service};
-\node[process] (report) at (19.0,4.0) {Report\\Service};
-\node[store] (db) at (17.7,1.5) {Diagnosis Report\\Database};
-\node[store] (audit) at (22.5,1.5) {Audit Log\\Store};
+\path[use as bounding box] (-0.4,-0.1) rectangle (26.2,13.1);
 
 \begin{scope}[on background layer]
-\node[boundary, fit=(patient)(wear), inner sep=0.75cm, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Wearable Device Boundary}] (bwear) {};
-\node[boundary, fit=(clinician)(mobile), inner sep=0.75cm, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Mobile Device Boundary}] (bmobile) {};
-\node[boundary, minimum width=5.7cm, minimum height=10.2cm, anchor=center, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Public Internet Boundary}] (binet) at (12.5,6.15) {};
-\node[boundary, fit=(auth)(ml)(report)(db)(audit), inner sep=0.75cm, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Cloud Environment Boundary}] (bcloud) {};
-\node[boundary, fit=(db)(audit), inner sep=0.45cm, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Database Boundary}] (bdb) {};
-\draw[orange!85!black, ultra thick] (4.25,0.15) -- (4.25,11.75) node[pos=0.02, below, font=\sffamily\bfseries\small] {Bluetooth Wireless Boundary};
+\draw[boundary, fill=blue!3] (0.0,1.0) rectangle (4.1,12.3);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (0.25,12.15) {Wearable Device\\Boundary};
+\draw[orange!80!black, line width=1.2pt, dashed] (4.35,1.0) rectangle (4.75,12.3);
+\node[rotate=90, text=orange!70!black, font=\sffamily\bfseries\small] at (4.55,6.7) {Bluetooth Wireless Boundary};
+\draw[boundary, fill=cyan!3] (5.0,1.0) rectangle (9.1,12.3);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (5.25,12.15) {Mobile Device\\Boundary};
+\draw[boundary, fill=gray!4] (9.7,1.0) rectangle (14.7,12.3);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (9.95,12.15) {Public Internet\\Boundary};
+\draw[boundary, fill=green!3] (15.3,1.0) rectangle (25.7,12.3);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (15.55,12.15) {Cloud Environment Boundary};
+\draw[boundary, fill=yellow!8] (20.0,1.6) rectangle (25.15,6.4);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (20.25,6.22) {Database Boundary};
 \end{scope}
+
+\node[entity] (patient) at (2.05,10.2) {Patient};
+\node[process] (wear) at (2.05,7.0) {Wearable\\Device};
+\node[entity] (clinician) at (7.05,10.2) {Clinician};
+\node[process] (mobile) at (7.05,7.0) {Mobile\\Application};
+\node[process] (api) at (12.2,7.0) {Cloud API};
+\node[process] (auth) at (17.7,10.2) {Authentication\\Service};
+\node[process] (ml) at (17.7,7.0) {ML Inference\\Service};
+\node[process] (report) at (17.7,4.0) {Report\\Service};
+\node[store] (db) at (22.6,5.0) {Diagnosis Report\\Database};
+\node[store] (audit) at (22.6,2.7) {Audit Log\\Store};
 
 \draw[flow] (patient) -- node[lab, left] {Patient Activity} (wear);
 \draw[flow] (wear.east) -- node[lab, above] {Bluetooth Motion Data} (mobile.west);
 \draw[flow] (mobile.east) -- node[lab, above] {API Request} (api.west);
 \draw[flow] (clinician.east) -- node[lab, above] {Authentication Token} (auth.west);
-\draw[flow] (clinician.south east) -- node[lab, left] {Report Retrieval Request} (api.north west);
+\draw[flow] (clinician.south east) to[out=-25,in=135] node[lab, above] {Report Retrieval Request} (api.north west);
 \draw[flow] (api.east) -- node[lab, above] {ML Input Data} (ml.west);
 \draw[flow] (ml.south) -- node[lab, right] {Diagnosis Result} (report.north);
-\draw[flow] (report.south) -- node[lab, left] {Saved Report} (db.north);
-\draw[flow] (report.east) -- node[lab, right] {Audit Event} (audit.north);
-\draw[flow] (report.west) -- node[lab, above] {Displayed Report} (clinician.south east);
+\draw[flow] (report.east) -- node[lab, above] {Saved Report} (db.west);
+\draw[flow] (report.south east) to[out=-20,in=165] node[lab, above] {Audit Event} (audit.west);
+\draw[flow] (report.west) to[out=200,in=-70] node[lab, below] {Displayed Report} (clinician.south);
+
+\node[draw=slategray, fill=white, rounded corners=4pt, align=left, anchor=south west, font=\sffamily\scriptsize] at (0.0,0.05) {\textbf{Legend:} blue = external entity \quad green = process \quad yellow = data store \quad rounded panels = trust boundaries};
 \end{tikzpicture}
 }
-\caption{Original Level 2/3 DFD with trust boundaries. The diagram uses a full landscape page so that wireless, mobile, internet, cloud, and database boundaries remain visually distinct.}
+\caption{Original Level 2/3 DFD with trust boundaries. The landscape layout separates device, wireless, mobile, public internet, cloud, and database zones to keep data flows readable.}
 \label{fig:dfd-original}
 \end{figure}
 \end{landscape}
@@ -232,61 +256,79 @@ Denial of Service & High request volume could exhaust the Cloud API or ML infere
 \begin{landscape}
 \begin{figure}[p]
 \centering
-\resizebox{0.96\linewidth}{!}{%
+\resizebox{0.98\linewidth}{!}{%
 \begin{tikzpicture}[
   >=Latex,
   every node/.style={font=\sffamily},
-  entity/.style={draw=blue!35!black, fill=entityblue, rounded corners=3pt, minimum width=3.0cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
-  process/.style={draw=green!30!black, fill=processgreen, rounded corners=3pt, minimum width=3.4cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
-  store/.style={draw=yellow!35!black, fill=storeyellow, rounded corners=3pt, minimum width=3.4cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
-  boundary/.style={draw=boundarygray, rounded corners=6pt, thick},
-  flow/.style={->, thick, draw=slategray},
-  lab/.style={fill=white, inner sep=2pt, font=\sffamily\scriptsize},
-  mit/.style={draw=mitline, fill=mitpurple, rounded corners=2pt, inner sep=3pt, align=center, font=\sffamily\bfseries\scriptsize}
+  entity/.style={draw=blue!35!black, fill=entityblue, rounded corners=4pt, minimum width=3.2cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
+  process/.style={draw=green!30!black, fill=processgreen, rounded corners=4pt, minimum width=3.4cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
+  store/.style={draw=yellow!35!black, fill=storeyellow, rounded corners=4pt, minimum width=3.6cm, minimum height=1.05cm, align=center, font=\sffamily\bfseries},
+  boundary/.style={draw=boundarygray, rounded corners=8pt, line width=0.75pt},
+  flow/.style={->, line width=0.75pt, draw=slategray},
+  lab/.style={fill=white, inner sep=2pt, font=\sffamily\scriptsize, text=slategray},
+  mit/.style={draw=mitline, fill=mitpurple, rounded corners=3pt, inner sep=3pt, align=center, font=\sffamily\bfseries\scriptsize, text=mitline}
 ]
 \definecolor{slategray}{HTML}{334155}
-
-\node[entity] (patient) at (1.7,10.4) {Patient};
-\node[process] (wear) at (1.7,6.7) {Wearable\\Device};
-\node[entity] (clinician) at (6.8,10.4) {Clinician};
-\node[process] (mobile) at (6.8,6.7) {Mobile\\Application};
-\node[process] (api) at (12.5,6.7) {Cloud API};
-\node[process] (auth) at (19.0,10.4) {Authentication\\Service};
-\node[process] (ml) at (19.0,6.9) {ML Inference\\Service};
-\node[process] (report) at (19.0,4.0) {Report\\Service};
-\node[store] (db) at (17.7,1.5) {Diagnosis Report\\Database};
-\node[store] (audit) at (22.5,1.5) {Audit Log\\Store};
+\path[use as bounding box] (-0.4,-0.1) rectangle (26.2,13.1);
 
 \begin{scope}[on background layer]
-\node[boundary, fit=(patient)(wear), inner sep=0.75cm, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Wearable Device Boundary}] (bwear) {};
-\node[boundary, fit=(clinician)(mobile), inner sep=0.75cm, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Mobile Device Boundary}] (bmobile) {};
-\node[boundary, minimum width=5.7cm, minimum height=10.2cm, anchor=center, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Public Internet Boundary}] (binet) at (12.5,6.15) {};
-\node[boundary, fit=(auth)(ml)(report)(db)(audit), inner sep=0.75cm, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Cloud Environment Boundary}] (bcloud) {};
-\node[boundary, fit=(db)(audit), inner sep=0.45cm, label={[font=\sffamily\bfseries\small, text=boundarygray]above:Database Boundary}] (bdb) {};
-\draw[orange!85!black, ultra thick] (4.25,0.15) -- (4.25,11.75) node[pos=0.02, below, font=\sffamily\bfseries\small] {Bluetooth Wireless Boundary};
+\draw[boundary, fill=blue!3] (0.0,1.0) rectangle (4.1,12.3);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (0.25,12.15) {Wearable Device\\Boundary};
+\draw[orange!80!black, line width=1.2pt, dashed] (4.35,1.0) rectangle (4.75,12.3);
+\node[rotate=90, text=orange!70!black, font=\sffamily\bfseries\small] at (4.55,6.7) {Bluetooth Wireless Boundary};
+\draw[boundary, fill=cyan!3] (5.0,1.0) rectangle (9.1,12.3);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (5.25,12.15) {Mobile Device\\Boundary};
+\draw[boundary, fill=gray!4] (9.7,1.0) rectangle (14.7,12.3);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (9.95,12.15) {Public Internet\\Boundary};
+\draw[boundary, fill=green!3] (15.3,1.0) rectangle (25.7,12.3);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (15.55,12.15) {Cloud Environment Boundary};
+\draw[boundary, fill=yellow!8] (20.0,1.6) rectangle (25.15,6.4);
+\node[anchor=north west, text=boundarygray, font=\sffamily\bfseries\scriptsize, align=left] at (20.25,6.22) {Database Boundary};
 \end{scope}
 
-\draw[flow] (patient) -- node[lab, left] {Patient Activity} (wear);
-\draw[flow] (wear.east) -- node[lab, below] {Bluetooth Motion Data} (mobile.west);
-\draw[flow] (mobile.east) -- node[lab, below] {API Request} (api.west);
-\draw[flow] (clinician.east) -- node[lab, below] {Authentication Token} (auth.west);
-\draw[flow] (clinician.south east) -- node[lab, left] {Report Retrieval Request} (api.north west);
-\draw[flow] (api.east) -- node[lab, below] {ML Input Data} (ml.west);
-\draw[flow] (ml.south) -- node[lab, right] {Diagnosis Result} (report.north);
-\draw[flow] (report.south) -- node[lab, left] {Saved Report} (db.north);
-\draw[flow] (report.east) -- node[lab, right] {Audit Event} (audit.north);
-\draw[flow] (report.west) -- node[lab, above] {Displayed Report} (clinician.south east);
+\node[entity] (patient) at (2.05,10.2) {Patient};
+\node[process] (wear) at (2.05,7.0) {Wearable\\Device};
+\node[entity] (clinician) at (7.05,10.2) {Clinician};
+\node[process] (mobile) at (7.05,7.0) {Mobile\\Application};
+\node[process] (api) at (12.2,7.0) {Cloud API};
+\node[process] (auth) at (17.7,10.2) {Authentication\\Service};
+\node[process] (ml) at (17.7,7.0) {ML Inference\\Service};
+\node[process] (report) at (17.7,4.0) {Report\\Service};
+\node[store] (db) at (22.6,5.0) {Diagnosis Report\\Database};
+\node[store] (audit) at (22.6,2.7) {Audit Log\\Store};
 
-\node[mit] at (4.85,7.55) {M1 BLE\\Secure Pairing};
-\node[mit] at (9.35,7.55) {M2 TLS};
-\node[mit] at (12.7,10.95) {M3 MFA + RBAC};
-\node[mit] at (15.05,7.55) {M5 Input\\Validation};
-\node[mit] at (12.5,5.05) {M6 Rate\\Limiting};
-\node[mit] at (17.7,0.25) {M4 Encryption at Rest + KMS};
-\node[mit] at (21.15,3.35) {M7 Audit\\Logging};
+\draw[flow] (patient) -- node[lab, left] {Patient Activity} (wear);
+\draw[flow] (wear.east) -- node[lab, above] {Bluetooth Motion Data} (mobile.west);
+\draw[flow] (mobile.east) -- node[lab, above] {API Request} (api.west);
+\draw[flow] (clinician.east) -- node[lab, above] {Authentication Token} (auth.west);
+\draw[flow] (clinician.south east) to[out=-25,in=135] node[lab, above] {Report Retrieval Request} (api.north west);
+\draw[flow] (api.east) -- node[lab, above] {ML Input Data} (ml.west);
+\draw[flow] (ml.south) -- node[lab, right] {Diagnosis Result} (report.north);
+\draw[flow] (report.east) -- node[lab, above] {Saved Report} (db.west);
+\draw[flow] (report.south east) to[out=-20,in=165] node[lab, above] {Audit Event} (audit.west);
+\draw[flow] (report.west) to[out=200,in=-70] node[lab, below] {Displayed Report} (clinician.south);
+
+\node[mit] at (4.55,7.85) {M1};
+\node[mit] at (9.45,7.45) {M2};
+\node[mit] at (12.55,10.95) {M3};
+\node[mit] at (15.05,7.45) {M5};
+\node[mit] at (12.2,5.55) {M6};
+\node[mit] at (22.6,6.95) {M4};
+\node[mit] at (20.3,3.4) {M7};
+
+\node[draw=mitline, fill=mitpurple, rounded corners=4pt, text width=5.2cm, anchor=north east, font=\sffamily\tiny, align=left] at (25.45,11.95) {
+\textbf{Mitigation Legend}\\
+M1 BLE secure pairing\\
+M2 TLS encryption\\
+M3 MFA + RBAC\\
+M4 Encryption at rest + KMS\\
+M5 Input validation\\
+M6 Rate limiting\\
+M7 Audit logging
+};
 \end{tikzpicture}
 }
-\caption{Level 2/3 DFD with mitigations added. Mitigation labels are positioned close to the protected flow or component while leaving trust boundaries readable.}
+\caption{Level 2/3 DFD with mitigations added. Controls M1--M7 are placed next to the protected boundary, flow, service, or data store, with the detailed mitigation legend kept separate from the data-flow labels.}
 \label{fig:dfd-mitigated}
 \end{figure}
 \end{landscape}
